@@ -201,7 +201,7 @@ class Player(wavelink.Player):
 
     async def get_embed(self, ctx, track):
         embed = discord.Embed(
-            title="WonBot Player",
+            title="WonBot Player🎉🎉",
             description="Created By wonyus",
             colour=ctx.author.colour,
             timestamp=dt.datetime.utcnow()
