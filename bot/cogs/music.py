@@ -334,9 +334,9 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
 
         nodes = {
             "MAIN": {
-                "host": "0.0.0.0",
+                "host": "127.0.0.1",
                 "port": 2333,
-                "rest_uri": "http://0.0.0.0:2333",
+                "rest_uri": "http://127.0.0.1:2333",
                 "password": "youshallnotpass",
                 "identifier": "MAIN",
                 "region": "europe",

@@ -14,7 +14,7 @@ def main():
     time.sleep(5)
     print("Running Lavalink.")
     Thread(target=lavarun).start()
-    time.sleep(5)
+    time.sleep(10)
     print("done Lavalink")
 
     bot = MusicBot()

@@ -1,5 +1,5 @@
 build-local:
-	docker build --tag bot-discord .
+	docker build --tag wonyus/bot-discord .
 
 start-local:
-	docker run --env-file .env --dns 8.8.8.8 --dns 8.8.4.4 bot-discord
+	docker run --env-file .env --dns 8.8.8.8 --dns 8.8.4.4 wonyus/bot-discord
