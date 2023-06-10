@@ -9,6 +9,6 @@ COPY requirements.txt requirements.txt
 RUN pip3 install -r requirements.txt
 
 COPY . .
-
-ENV TOKEN OTAwNzk1MTQ3ODYyODMxMTU1.YXGg2w.dvfM4oJc5ygt-cE388Of8X88OZ8
+ARG TOKEN
+ENV TOKEN=$TOKEN
 CMD ["python3", "./launcher.py"]
