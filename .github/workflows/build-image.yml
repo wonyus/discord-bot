@@ -3,7 +3,7 @@ name: build bot-discord
 on:
   push:
     branches: ["main"]
-    paths: ["*"]
+    paths: ["bot"]
 
 jobs:
   docker:
