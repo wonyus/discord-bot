@@ -1,4 +1,4 @@
-FROM python:3.9.12
+FROM python:3.9-alpine
 
 # Install Java JDK
 RUN apt-get update && apt-get install -y default-jdk
