@@ -11,6 +11,7 @@ import discord
 import wavelink
 from discord.ext import commands
 
+
 URL_REGEX = r"(?i)\b((?:https?://|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:'\".,<>?«»“”‘’]))"
 LYRICS_URL = "https://some-random-api.ml/lyrics?title="
 HZ_BANDS = (20, 40, 63, 100, 150, 250, 400, 450, 630,
@@ -198,11 +199,40 @@ class Player(wavelink.Player):
         except KeyError:
             pass
 
+    async def get_embed(self, ctx, track):
+        embed = discord.Embed(
+            title="WonBot Player",
+            description="Created By wonyus",
+            colour=ctx.author.colour,
+            timestamp=dt.datetime.utcnow()
+        )
+        embed.set_author(name="WonBot", 
+        icon_url='https://cdn.discordapp.com/app-icons/900762763910082570/974c31daecff203b4a172a07271d5b2d.png?size=256')
+        embed.add_field(
+            name="🎶Song",
+            value=f"🐱🐱🐱 {track.title} ({track.length//60000}:{str(track.length%60).zfill(2)})",
+            inline=True)
+        embed.add_field(
+            name="🎶Author", value=(f"{track.author}"),
+            inline=True)
+        embed.add_field(
+            name="🎶Link", value=f"{track.uri}",
+            inline=True)
+        embed.add_field(
+            name="wonbot", value="added song to queue"
+            )
+
+        embed.set_footer(
+            text=f"Invoked by {ctx.author.display_name}",
+            icon_url=ctx.author.avatar_url)
+        return embed
+
 
 ###################################second track############################
 
+
     async def add_tracks_second(self, ctx, tracks):
-        
+
         if not tracks:
             raise NoTracksFound
 
@@ -210,11 +240,19 @@ class Player(wavelink.Player):
             self.queue.add(*tracks.tracks)
         elif len(tracks) == 1:
             self.queue.add(tracks[0])
-            await ctx.send(f"Added {tracks[0].title} to the queue.")
+
+            trackname = tracks[0]
+            embed = await self.get_embed(ctx, trackname)
+            await ctx.reply(embed=embed)
+            # await ctx.send(f"Added {tracks[0].title} to the queue.")
         else:
             if (track := tracks[0]) is not None:
+                print(track)
                 self.queue.add(track)
-                await ctx.reply(f"Added {track.title} to the queue.")
+                trackname = track
+                embed = await self.get_embed(ctx, trackname)
+                await ctx.reply(embed=embed)
+                # await ctx.reply(f"Added {track.title} to the queue.")
 
         if not self.is_playing and not self.queue.is_empty:
             await self.start_playback()
@@ -230,12 +268,17 @@ class Player(wavelink.Player):
             self.queue.add(*tracks.tracks)
         elif len(tracks) == 1:
             self.queue.add(tracks[0])
-            await ctx.send(f"Added {tracks[0].title} to the queue.")
+            trackname = tracks[0]
+            embed = await self.get_embed(ctx, trackname)
+            await ctx.reply(embed=embed)
+            # await ctx.send(f"Added {tracks[0].title} to the queue.")
         else:
             if (track := await self.choose_track(ctx, tracks)) is not None:
                 self.queue.add(track)
-                await ctx.reply(f"Added {track.title} to the queue.")
-
+                trackname = track
+                embed = await self.get_embed(ctx, trackname)
+                await ctx.reply(embed=embed)
+                # await ctx.reply(f"Added {track.title} to the queue.")
                 # await ctx.send(f"Added {track.title} to the queue.")
 
         if not self.is_playing and not self.queue.is_empty:
@@ -252,7 +295,6 @@ class Player(wavelink.Player):
                 and u == ctx.author
                 and r.message.id == msg.id
             )
-
         embed = discord.Embed(
             title="Choose a song",
             description=(
@@ -389,6 +431,7 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
 
             await player.set_pause(False)
             await ctx.send("Playback resumed.")
+            
 
         else:
             query = query.strip("<>")
