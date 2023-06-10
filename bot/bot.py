@@ -25,7 +25,7 @@ class MusicBot(commands.Bot):
 
         TOKEN = os.getenv('TOKEN')
         print("Running bot...")
-        super().run("OTAwNzk1MTQ3ODYyODMxMTU1.YXGg2w.dvfM4oJc5ygt-cE388Of8X88OZ8", reconnect=True, port=8080)
+        super().run(TOKEN, reconnect=True)
 
     async def shutdown(self):
         print("Closing connection to Discord...")
