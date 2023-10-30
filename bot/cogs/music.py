@@ -1,6 +1,5 @@
 import asyncio
 import datetime as dt
-import enum
 import random
 import re
 import typing as t
