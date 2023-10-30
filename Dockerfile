@@ -1,14 +1,13 @@
-FROM python:3.9.12
-
-# Install Java JDK
-RUN apt-get update && apt-get install -y default-jdk
+FROM python:3.9.18-slim
 
 WORKDIR /app
 
 COPY requirements.txt requirements.txt
+COPY bot bot
+COPY launcher.py launcher.py 
+
 RUN pip3 install -r requirements.txt
 
-COPY . .
 ARG TOKEN
 ENV TOKEN=$TOKEN
-CMD ["python3", "./launcher.py"]
+CMD ["python3", "launcher.py"]

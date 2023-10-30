@@ -11,11 +11,28 @@ import discord
 import wavelink
 from discord.ext import commands
 
+from bot.utils import logger
+
 
 URL_REGEX = r"(?i)\b((?:https?://|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:'\".,<>?«»“”‘’]))"
 LYRICS_URL = "https://some-random-api.ml/lyrics?title="
-HZ_BANDS = (20, 40, 63, 100, 150, 250, 400, 450, 630,
-            1000, 1600, 2500, 4000, 10000, 16000)
+HZ_BANDS = (
+    20,
+    40,
+    63,
+    100,
+    150,
+    250,
+    400,
+    450,
+    630,
+    1000,
+    1600,
+    2500,
+    4000,
+    10000,
+    16000,
+)
 TIME_REGEX = r"([0-9]{1,2})[:ms](([0-9]{1,2})s?)?"
 OPTIONS = {
     "1️⃣": 0,
@@ -123,14 +140,14 @@ class Queue:
         if not self._queue:
             raise QueueIsEmpty
 
-        return self._queue[self.position + 1:]
+        return self._queue[self.position + 1 :]
 
     @property
     def history(self):
         if not self._queue:
             raise QueueIsEmpty
 
-        return self._queue[:self.position]
+        return self._queue[: self.position]
 
     @property
     def length(self):
@@ -161,7 +178,7 @@ class Queue:
 
         upcoming = self.upcoming
         random.shuffle(upcoming)
-        self._queue = self._queue[:self.position + 1]
+        self._queue = self._queue[: self.position + 1]
         self._queue.extend(upcoming)
 
     def set_repeat_mode(self, mode):
@@ -181,7 +198,8 @@ class Player(wavelink.Player):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.queue = Queue()
-        self.eq_levels = [0.] * 15
+        self.logger = logger.logger
+        self.eq_levels = [0.0] * 15
 
     async def connect(self, ctx, channel=None):
         if self.is_connected:
@@ -204,35 +222,29 @@ class Player(wavelink.Player):
             title="WonBot Player🎉🎉",
             description="Created By wonyus",
             colour=ctx.author.colour,
-            timestamp=dt.datetime.utcnow()
+            timestamp=dt.datetime.utcnow(),
         )
-        embed.set_author(name="WonBot", 
-        icon_url='https://cdn.discordapp.com/app-icons/900762763910082570/974c31daecff203b4a172a07271d5b2d.png?size=256')
+        embed.set_author(
+            name="WonBot",
+            icon_url="https://cdn.discordapp.com/app-icons/900762763910082570/974c31daecff203b4a172a07271d5b2d.png?size=256",
+        )
         embed.add_field(
             name="🎶Song",
             value=f"🐱🐱🐱 {track.title} ({track.length//60000}:{str(track.length%60).zfill(2)})",
-            inline=True)
-        embed.add_field(
-            name="🎶Author", value=(f"{track.author}"),
-            inline=True)
-        embed.add_field(
-            name="🎶Link", value=f"{track.uri}",
-            inline=True)
-        embed.add_field(
-            name="wonbot", value="added song to queue"
-            )
+            inline=True,
+        )
+        embed.add_field(name="🎶Author", value=(f"{track.author}"), inline=True)
+        embed.add_field(name="🎶Link", value=f"{track.uri}", inline=True)
+        embed.add_field(name="wonbot", value="added song to queue")
 
         embed.set_footer(
-            text=f"Invoked by {ctx.author.display_name}",
-            icon_url=ctx.author.avatar_url)
+            text=f"Invoked by {ctx.author.display_name}", icon_url=ctx.author.avatar_url
+        )
         return embed
 
-
-###################################second track############################
-
+    ###################################second track############################
 
     async def add_tracks_second(self, ctx, tracks):
-
         if not tracks:
             raise NoTracksFound
 
@@ -247,7 +259,7 @@ class Player(wavelink.Player):
             # await ctx.send(f"Added {tracks[0].title} to the queue.")
         else:
             if (track := tracks[0]) is not None:
-                print(track)
+                self.logger.info(track)
                 self.queue.add(track)
                 trackname = track
                 embed = await self.get_embed(ctx, trackname)
@@ -256,9 +268,9 @@ class Player(wavelink.Player):
 
         if not self.is_playing and not self.queue.is_empty:
             await self.start_playback()
-############################################################################
+    ############################################################################
 
-###################################first track with choose_track############################
+    ###################################first track with choose_track############################
 
     async def add_tracks(self, ctx, tracks):
         if not tracks:
@@ -284,17 +296,16 @@ class Player(wavelink.Player):
         if not self.is_playing and not self.queue.is_empty:
             await self.start_playback()
 
-############################################################################
+    ############################################################################
 
-###################################choose_track############################
+    ###################################choose_track############################
 
     async def choose_track(self, ctx, tracks):
         def _check(r, u):
             return (
-                r.emoji in OPTIONS.keys()
-                and u == ctx.author
-                and r.message.id == msg.id
+                r.emoji in OPTIONS.keys() and u == ctx.author and r.message.id == msg.id
             )
+
         embed = discord.Embed(
             title="Choose a song",
             description=(
@@ -304,18 +315,21 @@ class Player(wavelink.Player):
                 )
             ),
             colour=ctx.author.colour,
-            timestamp=dt.datetime.utcnow()
+            timestamp=dt.datetime.utcnow(),
         )
         embed.set_author(name="Query Results")
         embed.set_footer(
-            text=f"Invoked by {ctx.author.display_name}", icon_url=ctx.author.avatar_url)
+            text=f"Invoked by {ctx.author.display_name}", icon_url=ctx.author.avatar_url
+        )
 
         msg = await ctx.send(embed=embed)
-        for emoji in list(OPTIONS.keys())[:min(len(tracks), len(OPTIONS))]:
+        for emoji in list(OPTIONS.keys())[: min(len(tracks), len(OPTIONS))]:
             await msg.add_reaction(emoji)
 
         try:
-            reaction, _ = await self.bot.wait_for("reaction_add", timeout=60.0, check=_check)
+            reaction, _ = await self.bot.wait_for(
+                "reaction_add", timeout=60.0, check=_check
+            )
         except asyncio.TimeoutError:
             await msg.delete()
             await ctx.message.delete()
@@ -323,7 +337,7 @@ class Player(wavelink.Player):
             await msg.delete()
             return tracks[OPTIONS[reaction.emoji]]
 
-############################################################################
+    ############################################################################
 
     async def start_playback(self):
         await self.play(self.queue.current_track)
@@ -342,6 +356,7 @@ class Player(wavelink.Player):
 class Music(commands.Cog, wavelink.WavelinkMixin):
     def __init__(self, bot):
         self.bot = bot
+        self.logger = logger.logger
         self.wavelink = wavelink.Client(bot=bot)
         self.bot.loop.create_task(self.start_nodes())
 
@@ -353,7 +368,7 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
 
     @wavelink.WavelinkMixin.listener()
     async def on_node_ready(self, node):
-        print(f" Wavelink node `{node.identifier}` ready.")
+        self.logger.info(f" Wavelink node `{node.identifier}` ready.")
 
     @wavelink.WavelinkMixin.listener("on_track_stuck")
     @wavelink.WavelinkMixin.listener("on_track_end")
@@ -376,9 +391,9 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
 
         nodes = {
             "MAIN": {
-                "host": "127.0.0.1",
+                "host": "lavalink",
                 "port": 2333,
-                "rest_uri": "http://127.0.0.1:2333",
+                "rest_uri": "http://lavalink:2333",
                 "password": "youshallnotpass",
                 "identifier": "MAIN",
                 "region": "europe",
@@ -413,12 +428,12 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
         await player.teardown()
         await ctx.send("Disconnected.")
 
-##############################playe second##############################################
+    ##############################playe second##############################################
     @commands.command(name="p")
     async def play_comman_first(self, ctx, *, query: t.Optional[str]):
-
-        print("USER: ", ctx.author.name, "CHANNEL: ", ctx.author.guild.name,
-              "TEXTCHANNEL: ", ctx.channel.name, "REQUEST: ", query)
+        self.logger.info(
+            f"USER: {ctx.author.name} CHANNEL: {ctx.author.guild.name} TEXTCHANNEL: {ctx.channel.name} REQUEST: {query}"
+        )
 
         player = self.get_player(ctx)
 
@@ -431,7 +446,6 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
 
             await player.set_pause(False)
             await ctx.send("Playback resumed.")
-            
 
         else:
             query = query.strip("<>")
@@ -439,13 +453,13 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
                 query = f"ytsearch:{query}"
             await player.add_tracks_second(ctx, await self.wavelink.get_tracks(query))
 
-############################################################################
+    ############################################################################
 
     @commands.command(name="play")
     async def play_command(self, ctx, *, query: t.Optional[str]):
-
-        print("USER: ", ctx.author.name, "CHANNEL: ", ctx.author.guild.name,
-              "TEXTCHANNEL: ", ctx.channel.name, "REQUEST: ", query)
+        self.logger.info(
+            f"USER: {ctx.author.name} CHANNEL: {ctx.author.guild.name} TEXTCHANNEL: {ctx.channel.name} REQUEST: {query}"
+        )
 
         player = self.get_player(ctx)
 
@@ -507,7 +521,9 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
     @next_command.error
     async def next_command_error(self, ctx, exc):
         if isinstance(exc, QueueIsEmpty):
-            await ctx.send("This could not be executed as the queue is currently empty.")
+            await ctx.send(
+                "This could not be executed as the queue is currently empty."
+            )
         elif isinstance(exc, NoMoreTracks):
             await ctx.send("There are no more tracks in the queue.")
 
@@ -525,7 +541,9 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
     @previous_command.error
     async def previous_command_error(self, ctx, exc):
         if isinstance(exc, QueueIsEmpty):
-            await ctx.send("This could not be executed as the queue is currently empty.")
+            await ctx.send(
+                "This could not be executed as the queue is currently empty."
+            )
         elif isinstance(exc, NoPreviousTracks):
             await ctx.send("There are no previous tracks in the queue.")
 
@@ -560,22 +578,25 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
             title="Queue",
             description=f"Showing up to next {show} tracks",
             colour=ctx.author.colour,
-            timestamp=dt.datetime.utcnow()
+            timestamp=dt.datetime.utcnow(),
         )
         embed.set_author(name="Query Results")
         embed.set_footer(
-            text=f"Requested by {ctx.author.display_name}", icon_url=ctx.author.avatar_url)
+            text=f"Requested by {ctx.author.display_name}",
+            icon_url=ctx.author.avatar_url,
+        )
         embed.add_field(
             name="Currently playing",
-            value=getattr(player.queue.current_track, "title",
-                          "No tracks currently playing."),
-            inline=False
+            value=getattr(
+                player.queue.current_track, "title", "No tracks currently playing."
+            ),
+            inline=False,
         )
         if upcoming := player.queue.upcoming:
             embed.add_field(
                 name="Next up",
                 value="\n".join(t.title for t in upcoming[:show]),
-                inline=False
+                inline=False,
             )
 
         msg = await ctx.send(embed=embed)
@@ -681,7 +702,9 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
     @eq_command.error
     async def eq_command_error(self, ctx, exc):
         if isinstance(exc, InvalidEQPreset):
-            await ctx.send("The EQ preset must be either 'flat', 'boost', 'metal', or 'piano'.")
+            await ctx.send(
+                "The EQ preset must be either 'flat', 'boost', 'metal', or 'piano'."
+            )
 
     @commands.command(name="adveq", aliases=["aeq"])
     async def adveq_command(self, ctx, band: int, gain: float):
@@ -698,7 +721,8 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
 
         player.eq_levels[band - 1] = gain / 10
         eq = wavelink.eqs.Equalizer(
-            levels=[(i, gain) for i, gain in enumerate(player.eq_levels)])
+            levels=[(i, gain) for i, gain in enumerate(player.eq_levels)]
+        )
         await player.set_eq(eq)
         await ctx.send("Equaliser adjusted.")
 
@@ -710,7 +734,9 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
                 "frequencies: " + ", ".join(str(b) for b in HZ_BANDS)
             )
         elif isinstance(exc, EQGainOutOfBounds):
-            await ctx.send("The EQ gain for any band should be between 10 dB and -10 dB.")
+            await ctx.send(
+                "The EQ gain for any band should be between 10 dB and -10 dB."
+            )
 
     @commands.command(name="playing", aliases=["np"])
     async def playing_command(self, ctx):
@@ -726,18 +752,22 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
         )
         embed.set_author(name="Playback Information")
         embed.set_footer(
-            text=f"Requested by {ctx.author.display_name}", icon_url=ctx.author.avatar_url)
-        embed.add_field(name="Track title",
-                        value=player.queue.current_track.title, inline=False)
+            text=f"Requested by {ctx.author.display_name}",
+            icon_url=ctx.author.avatar_url,
+        )
         embed.add_field(
-            name="Artist", value=player.queue.current_track.author, inline=False)
+            name="Track title", value=player.queue.current_track.title, inline=False
+        )
+        embed.add_field(
+            name="Artist", value=player.queue.current_track.author, inline=False
+        )
 
         position = divmod(player.position, 60000)
         length = divmod(player.queue.current_track.length, 60000)
         embed.add_field(
             name="Position",
             value=f"{int(position[0])}:{round(position[1]/1000):02}/{int(length[0])}:{round(length[1]/1000):02}",
-            inline=False
+            inline=False,
         )
 
         await ctx.send(embed=embed)

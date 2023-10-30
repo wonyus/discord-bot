@@ -1,5 +1,6 @@
 .env
-bot-discord
+venv
 logs
-bot\__pycache__\*.*
-bot\cogs/__pycache__\*.*
+**/__pycache__/*.*
+*.log
+docker-compose.yml
