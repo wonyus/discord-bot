@@ -11,7 +11,8 @@ import wavelink
 from discord.ext import commands
 
 from bot.utils import logger
-
+from bs4 import BeautifulSoup
+import requests
 
 URL_REGEX = r"(?i)\b((?:https?://|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:'\".,<>?«»“”‘’]))"
 LYRICS_URL = "https://some-random-api.ml/lyrics?title="
@@ -474,6 +475,12 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
 
         else:
             query = query.strip("<>")
+            if str(query).find('open.spotify.com') != -1:
+                html = requests.get(query)
+                soup = BeautifulSoup(html.text, 'html.parser')
+                m = soup.title.string.replace('- song and lyrics by ', '')
+                query = m.replace(' | Spotify', '')
+
             if not re.match(URL_REGEX, query):
                 query = f"ytsearch:{query}"
             await player.add_tracks(ctx, await self.wavelink.get_tracks(query))
