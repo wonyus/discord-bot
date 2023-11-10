@@ -391,9 +391,9 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
 
         nodes = {
             "MAIN": {
-                "host": "127.0.0.1",
+                "host": "lavalink",
                 "port": 2333,
-                "rest_uri": "http://127.0.0.1:2333",
+                "rest_uri": "http://lavalink:2333",
                 "password": "youshallnotpass",
                 "identifier": "MAIN",
                 "region": "europe",
@@ -454,7 +454,7 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
                 soup = BeautifulSoup(html.text, 'html.parser')
                 m = soup.title.string.replace('- song and lyrics by ', '')
                 query = m.replace(' | Spotify', '')
-                
+
             if not re.match(URL_REGEX, query):
                 query = f"ytsearch:{query}"
             await player.add_tracks_second(ctx, await self.wavelink.get_tracks(query))
