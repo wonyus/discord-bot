@@ -391,9 +391,7 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
 
         nodes = {
             "MAIN": {
-                "host": "lavalink",
-                "port": 2333,
-                "rest_uri": "http://lavalink:2333/v4/websocket",
+                "uri": "http://lavalink:2333/v4/websocket",
                 "password": "youshallnotpass",
                 "identifier": "MAIN",
                 "region": "asia",
